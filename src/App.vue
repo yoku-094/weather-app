@@ -1,17 +1,23 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <WeatherTop />
+  <footer>
+    <p>
+      This information is displayed using the
+      <a href="https://openweathermap.org/" target="_blank">Open Weather API</a>
+      .
+    </p>
+  </footer>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import WeatherTop from "./components/WeatherTop.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    WeatherTop,
+  },
+};
 </script>
 
 <style>
