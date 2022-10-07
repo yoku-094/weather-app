@@ -1,12 +1,5 @@
 <template>
   <WeatherTop />
-  <footer>
-    <p>
-      This information is displayed using the
-      <a href="https://openweathermap.org/" target="_blank">Open Weather API</a>
-      .
-    </p>
-  </footer>
 </template>
 
 <script>
