@@ -67,32 +67,8 @@ export default {
       atmospheric_pressure: null,
     };
   },
-  mounted() {
-    axios
-      .get(
-        "https://api.openweathermap.org/data/2.5/weather?appid=eb7c0edbd3e8755921136e3e1fbc239b&lang=ja&units=metric",
-        {
-          params: {
-            q: this.selectCity,
-          },
-        }
-      )
-      .then(
-        (res) => (
-          (this.city = res.data.name),
-          (this.description = res.data.weather[0].description),
-          (this.condition = res.data.weather[0].main),
-          (this.max_temp = res.data.main.temp_max),
-          (this.min_temp = res.data.main.temp_min),
-          (this.atmospheric_pressure = res.data.main.pressure)
-        )
-      )
-      .catch((error) => console.log(error));
-  },
-  watch: {
-    selectCity(newSelectCity) {
-      this.selectCity = newSelectCity;
-
+  methods: {
+    getWeather() {
       axios
         .get(
           "https://api.openweathermap.org/data/2.5/weather?appid=eb7c0edbd3e8755921136e3e1fbc239b&lang=ja&units=metric",
@@ -113,6 +89,22 @@ export default {
           )
         )
         .catch((error) => console.log(error));
+    },
+  },
+  mounted() {
+    if (sessionStorage.selectCity) {
+      this.selectCity = sessionStorage.selectCity;
+    }
+
+    this.getWeather();
+  },
+  watch: {
+    selectCity(newSelectCity) {
+      this.selectCity = newSelectCity;
+
+      sessionStorage.selectCity = newSelectCity;
+
+      this.getWeather();
     },
   },
 };
