@@ -11,7 +11,7 @@
       </select>
     </div>
     <div class="weather-info-1">
-      <h1>{{ city }}</h1>
+      <h1>【 {{ city }} 】</h1>
       <h2>{{ description }}</h2>
     </div>
     <div class="weather-icon">
@@ -33,32 +33,19 @@
       <p>low: {{ min_temp }}</p>
       <p>pressure: {{ atmospheric_pressure }}</p>
     </div>
-    <div class="info-source">
-      <p>
-        source:&ensp;
-        <a href="https://openweathermap.org/" target="_blank"
-          >Open Weather API</a
-        >
-      </p>
-    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import cityList from "../assets/data/city-list.json";
 
 export default {
   name: "WeatherTop",
   data() {
     return {
-      selectCity: "tokyo",
-      cities: [
-        { name: "sapporo", text: "札幌" },
-        { name: "tokyo", text: "東京" },
-        { name: "nagoya", text: "名古屋" },
-        { name: "osaka", text: "大阪" },
-        { name: "fukuoka", text: "福岡" },
-      ],
+      selectCity: "shinjuku",
+      cities: cityList,
       city: null,
       description: null,
       condition: null,
