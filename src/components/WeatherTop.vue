@@ -29,9 +29,15 @@
       </p>
     </div>
     <div class="weather-info-2">
-      <p>hight: {{ max_temp }}</p>
-      <p>low: {{ min_temp }}</p>
-      <p>pressure: {{ atmospheric_pressure }}</p>
+      <p>
+        <span class="max-temp">{{ Math.round(max_temp) }} ℃</span>
+      </p>
+      <p>
+        <span class="min-temp">{{ Math.round(min_temp) }} ℃</span>
+      </p>
+      <p>
+        <span class="pressure">{{ atmospheric_pressure }} &ensp;hPa</span>
+      </p>
     </div>
   </div>
 </template>
@@ -112,5 +118,18 @@ li {
 }
 a {
   color: #42b983;
+}
+
+.weather-info-2 {
+  font-weight: bold;
+}
+.max-temp {
+  color: #ea85ac;
+}
+.min-temp {
+  color: #85beea;
+}
+.pressure {
+  color: #858585;
 }
 </style>
