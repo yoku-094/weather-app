@@ -11,8 +11,8 @@
       </select>
     </div>
     <div class="weather-info-1">
-      <h1>【 {{ city }} 】</h1>
-      <h2>{{ description }}</h2>
+      <div class="prefectures">{{ displayName }}</div>
+      <div class="cities">{{ description }}</div>
     </div>
     <div class="weather-icon">
       <p v-if="condition == 'Clear'">
@@ -53,6 +53,7 @@ export default {
       selectCity: "shinjuku",
       cities: cityList,
       city: null,
+      displayName: null,
       description: null,
       condition: null,
       max_temp: null,
@@ -83,6 +84,14 @@ export default {
         )
         .catch((error) => console.log(error));
     },
+    // API取得の都市名に不正確なものがあるため、jsonファイルで設定し取得・表示する
+    getDisplayName() {
+      for (var list in this.cities) {
+        if (this.cities[list].name == this.selectCity) {
+          this.displayName = this.cities[list].display;
+        }
+      }
+    },
   },
   mounted() {
     if (sessionStorage.selectCity) {
@@ -90,6 +99,7 @@ export default {
     }
 
     this.getWeather();
+    this.getDisplayName();
   },
   watch: {
     selectCity(newSelectCity) {
@@ -98,6 +108,7 @@ export default {
       sessionStorage.selectCity = newSelectCity;
 
       this.getWeather();
+      this.getDisplayName();
     },
   },
 };
@@ -118,6 +129,16 @@ li {
 }
 a {
   color: #42b983;
+}
+
+.prefectures {
+  font-size: 2.5rem;
+  font-weight: bold;
+  padding: 20px 0px 25px;
+}
+.cities {
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .weather-info-2 {
