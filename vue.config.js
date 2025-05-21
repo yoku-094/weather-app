@@ -1,4 +1,7 @@
 module.exports = {
   outputDir: "docs",
-  publicPath: "./",
+  publicPath: "./",productionSourceMap: true,
+  configureWebpack: {
+    devtool: 'source-map'
+  }
 };
