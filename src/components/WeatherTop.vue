@@ -4,11 +4,14 @@
 
   <div class="main" v-else>
     <div class="select-city">
-      <select v-model="selectCity">
-        <option v-for="city in cities" :key="city.name" :value="city.name">
-          {{ city.text }}
-        </option>
-      </select>
+      <div class="select-city-items">
+        <select v-model="selectCity">
+          <option v-for="city in cities" :key="city.name" :value="city.name">
+            {{ city.text }}
+          </option>
+        </select>
+        <button @click="getCurrentLocationWeather">現在地の天気</button>
+      </div>
     </div>
     <div class="weather-info-1">
       <div class="prefectures">{{ displayName }}</div>
@@ -82,7 +85,12 @@ export default {
             (this.atmospheric_pressure = res.data.main.pressure)
           )
         )
-        .catch((error) => console.log(error));
+        .catch(
+          (error) => {
+            console.log(error)
+            alert("現在地の天気を取得できませんでした");
+          }
+        );
     },
     // API取得の都市名に不正確なものがあるため、jsonファイルで設定し取得・表示する
     getDisplayName() {
@@ -91,6 +99,56 @@ export default {
           this.displayName = this.cities[list].display;
         }
       }
+    },
+    getCurrentLocationWeather() {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          axios
+            .get(
+              "https://api.openweathermap.org/data/2.5/weather?appid=eb7c0edbd3e8755921136e3e1fbc239b&lang=ja&units=metric",
+              {
+                params: {
+                  lat: lat,
+                  lon: lon,
+                  appid: "eb7c0edbd3e8755921136e3e1fbc239b",
+                  lang: "ja",
+                  // 温度を摂氏で取得
+                  units: "metric,"
+                }
+              }
+            )
+            .then((res) => {
+              this.city = res.data.name;
+              this.description = res.data.weather[0].description;
+              this.condition = res.data.weather[0].main;
+              this.max_temp = res.data.main.temp_max;
+              this.min_temp = res.data.main.temp_min;
+              this.atmospheric_pressure = res.data.main.pressure;
+
+              // 返ってきた市名でcitiesを検索してdisplayNameセット
+              const foundCity = this.cities.find(
+                (city) => city.display === res.data.name
+              );
+              if (foundCity) {
+                this.displayName = foundCity.display;
+                this.selectCity = foundCity.name; // もしプルダウンも連動させたいなら
+              } else {
+                this.displayName = res.data.name; // 見つからなければAPIの市名を表示
+              }
+            })
+            .catch((err) => {
+              console.error("天気取得エラー", err);
+              alert("現在地の天気を取得できませんでした");
+            });
+        },
+        (err) => {
+          console.error("位置情報取得エラー", err);
+          alert("位置情報を取得できませんでした");
+        }
+      );
     },
   },
   mounted() {
@@ -131,6 +189,17 @@ a {
   color: #42b983;
 }
 
+.select-city {
+  display: flex;
+  justify-content: center;
+}
+.select-city-items {
+  display: flex;
+  flex-direction: column;
+  text-align-last: center;
+  width: 100px;
+  row-gap: 14px;
+}
 .prefectures {
   font-size: 2.5rem;
   font-weight: bold;
