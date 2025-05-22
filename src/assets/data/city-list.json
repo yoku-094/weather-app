@@ -1,49 +1,284 @@
 [
-  { "name": "sapporo", "text": "北海道", "display": "札幌市" },
-  { "name": "aomori", "text": "青森", "display": "青森市" },
-  { "name": "morioka", "text": "岩手", "display": "盛岡市" },
-  { "name": "sendai", "text": "宮城", "display": "仙台市" },
-  { "name": "akita", "text": "秋田", "display": "秋田市" },
-  { "name": "yamagata", "text": "山形", "display": "山形市" },
-  { "name": "fukushima", "text": "福島", "display": "福島市" },
-  { "name": "mito", "text": "茨城", "display": "水戸市" },
-  { "name": "utsunomiya", "text": "栃木", "display": "宇都宮市" },
-  { "name": "Maebashi", "text": "群馬", "display": "前橋市" },
-  { "name": "saitama", "text": "埼玉", "display": "さいたま市" },
-  { "name": "chiba", "text": "千葉", "display": "千葉市" },
-  { "name": "shinjuku", "text": "東京", "display": "新宿区" },
-  { "name": "yokohama", "text": "神奈川", "display": "横浜市" },
-  { "name": "niigata", "text": "新潟", "display": "新潟市" },
-  { "name": "toyama", "text": "富山", "display": "富山市" },
-  { "name": "kanazawa", "text": "金沢", "display": "金沢市" },
-  { "name": "Fukui", "text": "福井", "display": "福井市" },
-  { "name": "kofu", "text": "山梨", "display": "甲府市" },
-  { "name": "nagano", "text": "長野", "display": "長野市" },
-  { "name": "gifu", "text": "岐阜", "display": "岐阜市" },
-  { "name": "shizuoka", "text": "静岡", "display": "静岡市" },
-  { "name": "nagoya", "text": "愛知", "display": "名古屋市" },
-  { "name": "tsu", "text": "三重", "display": "津市" },
-  { "name": "otsu", "text": "滋賀", "display": "大津市" },
-  { "name": "kyoto", "text": "京都", "display": "京都市" },
-  { "name": "osaka", "text": "大阪", "display": "大阪市" },
-  { "name": "kobe", "text": "兵庫", "display": "神戸市" },
-  { "name": "nara", "text": "奈良", "display": "奈良市" },
-  { "name": "wakayama", "text": "和歌山", "display": "和歌山市" },
-  { "name": "tottori", "text": "鳥取", "display": "鳥取市" },
-  { "name": "matsue", "text": "島根", "display": "松江市" },
-  { "name": "okayama", "text": "岡山", "display": "岡山市" },
-  { "name": "hiroshima", "text": "広島", "display": "広島市" },
-  { "name": "yamaguchi", "text": "山口", "display": "山口市" },
-  { "name": "tokushima", "text": "徳島", "display": "徳島市" },
-  { "name": "takamatsu", "text": "香川", "display": "高松市" },
-  { "name": "matsuyama", "text": "愛媛", "display": "松山市" },
-  { "name": "Kochi", "text": "高知", "display": "高知市" },
-  { "name": "fukuoka", "text": "福岡", "display": "福岡市" },
-  { "name": "saga", "text": "佐賀", "display": "佐賀市" },
-  { "name": "nagasaki", "text": "長崎", "display": "長崎市" },
-  { "name": "kumamoto", "text": "熊本", "display": "熊本市" },
-  { "name": "oita", "text": "大分", "display": "大分市" },
-  { "name": "miyazaki", "text": "宮崎", "display": "宮崎市" },
-  { "name": "kagoshima", "text": "鹿児島", "display": "鹿児島市" },
-  { "name": "naha", "text": "沖縄", "display": "那覇市" }
+  {
+    "name": "sapporo",
+    "text": "北海道",
+    "display": "札幌市",
+    "prefCode": "01"
+  },
+  {
+    "name": "aomori",
+    "text": "青森",
+    "display": "青森市",
+    "prefCode": "02"
+  },
+  {
+    "name": "morioka",
+    "text": "岩手",
+    "display": "盛岡市",
+    "prefCode": "03"
+  },
+  {
+    "name": "sendai",
+    "text": "宮城",
+    "display": "仙台市",
+    "prefCode": "04"
+  },
+  {
+    "name": "akita",
+    "text": "秋田",
+    "display": "秋田市",
+    "prefCode": "05"
+  },
+  {
+    "name": "yamagata",
+    "text": "山形",
+    "display": "山形市",
+    "prefCode": "06"
+  },
+  {
+    "name": "fukushima",
+    "text": "福島",
+    "display": "福島市",
+    "prefCode": "07"
+  },
+  {
+    "name": "mito",
+    "text": "茨城",
+    "display": "水戸市",
+    "prefCode": "08"
+  },
+  {
+    "name": "utsunomiya",
+    "text": "栃木",
+    "display": "宇都宮市",
+    "prefCode": "09"
+  },
+  {
+    "name": "Maebashi",
+    "text": "群馬",
+    "display": "前橋市",
+    "prefCode": "10"
+  },
+  {
+    "name": "saitama",
+    "text": "埼玉",
+    "display": "さいたま市",
+    "prefCode": "11"
+  },
+  {
+    "name": "chiba",
+    "text": "千葉",
+    "display": "千葉市",
+    "prefCode": "12"
+  },
+  {
+    "name": "shinjuku",
+    "text": "東京",
+    "display": "新宿区",
+    "prefCode": "13"
+  },
+  {
+    "name": "yokohama",
+    "text": "神奈川",
+    "display": "横浜市",
+    "prefCode": "14"
+  },
+  {
+    "name": "niigata",
+    "text": "新潟",
+    "display": "新潟市",
+    "prefCode": "15"
+  },
+  {
+    "name": "toyama",
+    "text": "富山",
+    "display": "富山市",
+    "prefCode": "16"
+  },
+  {
+    "name": "kanazawa",
+    "text": "石川",
+    "display": "金沢市",
+    "prefCode": "17"
+  },
+  {
+    "name": "Fukui",
+    "text": "福井",
+    "display": "福井市",
+    "prefCode": "18"
+  },
+  {
+    "name": "kofu",
+    "text": "山梨",
+    "display": "甲府市",
+    "prefCode": "19"
+  },
+  {
+    "name": "nagano",
+    "text": "長野",
+    "display": "長野市",
+    "prefCode": "20"
+  },
+  {
+    "name": "gifu",
+    "text": "岐阜",
+    "display": "岐阜市",
+    "prefCode": "21"
+  },
+  {
+    "name": "shizuoka",
+    "text": "静岡",
+    "display": "静岡市",
+    "prefCode": "22"
+  },
+  {
+    "name": "nagoya",
+    "text": "愛知",
+    "display": "名古屋市",
+    "prefCode": "23"
+  },
+  {
+    "name": "tsu",
+    "text": "三重",
+    "display": "津市",
+    "prefCode": "24"
+  },
+  {
+    "name": "otsu",
+    "text": "滋賀",
+    "display": "大津市",
+    "prefCode": "25"
+  },
+  {
+    "name": "kyoto",
+    "text": "京都",
+    "display": "京都市",
+    "prefCode": "26"
+  },
+  {
+    "name": "osaka",
+    "text": "大阪",
+    "display": "大阪市",
+    "prefCode": "27"
+  },
+  {
+    "name": "kobe",
+    "text": "兵庫",
+    "display": "神戸市",
+    "prefCode": "28"
+  },
+  {
+    "name": "nara",
+    "text": "奈良",
+    "display": "奈良市",
+    "prefCode": "29"
+  },
+  {
+    "name": "wakayama",
+    "text": "和歌山",
+    "display": "和歌山市",
+    "prefCode": "30"
+  },
+  {
+    "name": "tottori",
+    "text": "鳥取",
+    "display": "鳥取市",
+    "prefCode": "31"
+  },
+  {
+    "name": "matsue",
+    "text": "島根",
+    "display": "松江市",
+    "prefCode": "32"
+  },
+  {
+    "name": "okayama",
+    "text": "岡山",
+    "display": "岡山市",
+    "prefCode": "33"
+  },
+  {
+    "name": "hiroshima",
+    "text": "広島",
+    "display": "広島市",
+    "prefCode": "34"
+  },
+  {
+    "name": "yamaguchi",
+    "text": "山口",
+    "display": "山口市",
+    "prefCode": "35"
+  },
+  {
+    "name": "tokushima",
+    "text": "徳島",
+    "display": "徳島市",
+    "prefCode": "36"
+  },
+  {
+    "name": "takamatsu",
+    "text": "香川",
+    "display": "高松市",
+    "prefCode": "37"
+  },
+  {
+    "name": "matsuyama",
+    "text": "愛媛",
+    "display": "松山市",
+    "prefCode": "38"
+  },
+  {
+    "name": "Kochi",
+    "text": "高知",
+    "display": "高知市",
+    "prefCode": "39"
+  },
+  {
+    "name": "fukuoka",
+    "text": "福岡",
+    "display": "福岡市",
+    "prefCode": "40"
+  },
+  {
+    "name": "saga",
+    "text": "佐賀",
+    "display": "佐賀市",
+    "prefCode": "41"
+  },
+  {
+    "name": "nagasaki",
+    "text": "長崎",
+    "display": "長崎市",
+    "prefCode": "42"
+  },
+  {
+    "name": "kumamoto",
+    "text": "熊本",
+    "display": "熊本市",
+    "prefCode": "43"
+  },
+  {
+    "name": "oita",
+    "text": "大分",
+    "display": "大分市",
+    "prefCode": "44"
+  },
+  {
+    "name": "miyazaki",
+    "text": "宮崎",
+    "display": "宮崎市",
+    "prefCode": "45"
+  },
+  {
+    "name": "kagoshima",
+    "text": "鹿児島",
+    "display": "鹿児島市",
+    "prefCode": "46"
+  },
+  {
+    "name": "naha",
+    "text": "沖縄",
+    "display": "那覇市",
+    "prefCode": "47"
+  }
 ]

@@ -49,6 +49,8 @@
 import axios from "axios";
 import cityList from "../assets/data/city-list.json";
 
+const apiKey = process.env.VUE_APP_WEATHER_API_KEY;
+
 export default {
   name: "WeatherTop",
   data() {
@@ -68,7 +70,7 @@ export default {
     getWeather() {
       axios
         .get(
-          "https://api.openweathermap.org/data/2.5/weather?appid=eb7c0edbd3e8755921136e3e1fbc239b&lang=ja&units=metric",
+          `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}&lang=ja&units=metric`,
           {
             params: {
               q: this.selectCity,
@@ -85,12 +87,10 @@ export default {
             (this.atmospheric_pressure = res.data.main.pressure)
           )
         )
-        .catch(
-          (error) => {
-            console.log(error)
-            alert("現在地の天気を取得できませんでした");
-          }
-        );
+        .catch((error) => {
+          console.log(error);
+          alert("現在地の天気を取得できませんでした");
+        });
     },
     // API取得の都市名に不正確なものがあるため、jsonファイルで設定し取得・表示する
     getDisplayName() {
@@ -100,55 +100,77 @@ export default {
         }
       }
     },
-    getCurrentLocationWeather() {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
+    async getCurrentLocationWeather() {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
 
-          axios
-            .get(
-              "https://api.openweathermap.org/data/2.5/weather?appid=eb7c0edbd3e8755921136e3e1fbc239b&lang=ja&units=metric",
-              {
-                params: {
-                  lat: lat,
-                  lon: lon,
-                  appid: "eb7c0edbd3e8755921136e3e1fbc239b",
-                  lang: "ja",
-                  // 温度を摂氏で取得
-                  units: "metric,"
-                }
-              }
-            )
-            .then((res) => {
-              this.city = res.data.name;
-              this.description = res.data.weather[0].description;
-              this.condition = res.data.weather[0].main;
-              this.max_temp = res.data.main.temp_max;
-              this.min_temp = res.data.main.temp_min;
-              this.atmospheric_pressure = res.data.main.pressure;
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
 
-              // 返ってきた市名でcitiesを検索してdisplayNameセット
-              const foundCity = this.cities.find(
-                (city) => city.display === res.data.name
-              );
-              if (foundCity) {
-                this.displayName = foundCity.display;
-                this.selectCity = foundCity.name; // もしプルダウンも連動させたいなら
-              } else {
-                this.displayName = res.data.name; // 見つからなければAPIの市名を表示
-              }
-            })
-            .catch((err) => {
-              console.error("天気取得エラー", err);
-              alert("現在地の天気を取得できませんでした");
-            });
-        },
-        (err) => {
-          console.error("位置情報取得エラー", err);
-          alert("位置情報を取得できませんでした");
+        // 市区町村名（displayName）を reverse geocoding で取得
+        const geoRes = await axios.get(
+          "https://api.openweathermap.org/geo/1.0/reverse",
+          {
+            params: {
+              lat,
+              lon,
+              limit: 1,
+              appid: apiKey,
+            },
+          }
+        );
+        const location = geoRes.data[0];
+        this.displayName = location.local_names.ja;
+
+        // 天気データを緯度経度で取得
+        const weatherRes = await axios.get(
+          "https://api.openweathermap.org/data/2.5/weather",
+          {
+            params: {
+              lat,
+              lon,
+              appid: apiKey,
+              lang: "ja",
+              units: "metric",
+            },
+          }
+        );
+        const data = weatherRes.data;
+        this.city = data.name; // 参考に保持
+        this.description = data.weather[0].description;
+        this.condition = data.weather[0].main;
+        this.max_temp = data.main.temp_max;
+        this.min_temp = data.main.temp_min;
+        this.atmospheric_pressure = data.main.pressure;
+
+        // 国土地理院 API を呼び出す（都道府県コード取得）
+        const gsiRes = await axios.get(
+          "https://mreversegeocoder.gsi.go.jp/reverse-geocoder/LonLatToAddress",
+          {
+            params: {
+              lat,
+              lon,
+            },
+          }
+        );
+        const muniCd = gsiRes.data.results.muniCd;
+        // 都道府県コード（先頭の二桁のみ）の取得
+        const prefCode = muniCd.slice(0, 2);
+
+        // cityList から該当する都道府県コードを持つ都市を探す
+        const match = this.cities.find((city) => city.prefCode === prefCode);
+
+        if (match) {
+          this.selectCity = match.name;
+          // プルダウン選択による都道府県選択の抑制用
+          this.suppressWatch = true;
         }
-      );
+      } catch (err) {
+        console.error("天気取得エラー", err);
+        alert("現在地の天気を取得できませんでした");
+      }
     },
   },
   mounted() {
@@ -161,8 +183,13 @@ export default {
   },
   watch: {
     selectCity(newSelectCity) {
-      this.selectCity = newSelectCity;
+      if (this.suppressWatch) {
+        // 現在地ボタン押下時のプルダウン選択はスキップ
+        this.suppressWatch = false;
+        return;
+      }
 
+      this.selectCity = newSelectCity;
       sessionStorage.selectCity = newSelectCity;
 
       this.getWeather();
