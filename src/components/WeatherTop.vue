@@ -13,34 +13,56 @@
         <button @click="getCurrentLocationWeather">現在地の天気</button>
       </div>
     </div>
-    <div class="weather-info-1">
-      <div class="prefectures">{{ displayName }}</div>
-      <div class="cities">{{ description }}</div>
+    <div class="weather-info-now">
+      <div class="weather-info-1">
+        <div class="prefectures">{{ displayName }}</div>
+        <div class="cities">{{ description }}</div>
+      </div>
+      <div class="weather-icon">
+        <p v-if="condition == 'Clear'">
+          <img alt="logo_sunny" src="../assets/logo_Sunny.png" />
+        </p>
+        <p v-else-if="condition == 'Clouds'">
+          <img alt="logo_cloud" src="../assets/logo_Cloud.png" />
+        </p>
+        <p v-else-if="condition == 'Rain'">
+          <img alt="logo_rain" src="../assets/logo_Rain.png" />
+        </p>
+        <p v-else>
+          <img alt="logo_other" src="../assets/logo_Other.png" />
+        </p>
+      </div>
+      <div class="weather-info-2">
+        <p>
+          <span class="max-temp">{{ Math.round(max_temp) }} ℃</span>
+        </p>
+        <p>
+          <span class="min-temp">{{ Math.round(min_temp) }} ℃</span>
+        </p>
+        <p>
+          <span class="pressure">{{ atmospheric_pressure }} &ensp;hPa</span>
+        </p>
+      </div>
     </div>
-    <div class="weather-icon">
-      <p v-if="condition == 'Clear'">
-        <img alt="logo_sunny" src="../assets/logo_Sunny.png" />
-      </p>
-      <p v-else-if="condition == 'Clouds'">
-        <img alt="logo_cloud" src="../assets/logo_Cloud.png" />
-      </p>
-      <p v-else-if="condition == 'Rain'">
-        <img alt="logo_rain" src="../assets/logo_Rain.png" />
-      </p>
-      <p v-else>
-        <img alt="logo_other" src="../assets/logo_Other.png" />
-      </p>
-    </div>
-    <div class="weather-info-2">
-      <p>
-        <span class="max-temp">{{ Math.round(max_temp) }} ℃</span>
-      </p>
-      <p>
-        <span class="min-temp">{{ Math.round(min_temp) }} ℃</span>
-      </p>
-      <p>
-        <span class="pressure">{{ atmospheric_pressure }} &ensp;hPa</span>
-      </p>
+    <div class="weather-info-week">
+      <table class="table table-bordered text-center">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th v-for="hour in hours" :key="hour">{{ hour }}時</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(day, index) in forecastData" :key="index">
+            <td>{{ day.date }}</td>
+            <td v-for="hour in hours" :key="hour">
+              <div class="weather-icon">{{ day[hour].icon }}</div>
+              <div>{{ day[hour].tempMax }} / {{ day[hour].tempMin }} °C</div>
+              <div>{{ day[hour].pressure }} hPa</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -64,6 +86,8 @@ export default {
       max_temp: null,
       min_temp: null,
       atmospheric_pressure: null,
+      hours: [],
+      forecastData: [],
     };
   },
   methods: {
@@ -84,7 +108,11 @@ export default {
             (this.condition = res.data.weather[0].main),
             (this.max_temp = res.data.main.temp_max),
             (this.min_temp = res.data.main.temp_min),
-            (this.atmospheric_pressure = res.data.main.pressure)
+            (this.atmospheric_pressure = res.data.main.pressure),
+            // 未来の天気を取得
+            this.getForecast({
+              q: this.selectCity,
+            })
           )
         )
         .catch((error) => {
@@ -144,6 +172,11 @@ export default {
         this.max_temp = data.main.temp_max;
         this.min_temp = data.main.temp_min;
         this.atmospheric_pressure = data.main.pressure;
+        // 未来の天気予報を取得
+        await this.getForecast({
+          lat: lat,
+          lon: lon,
+        });
 
         // 国土地理院 API を呼び出す（都道府県コード取得）
         const gsiRes = await axios.get(
@@ -170,6 +203,53 @@ export default {
       } catch (err) {
         console.error("天気取得エラー", err);
         alert("現在地の天気を取得できませんでした");
+      }
+    },
+    async getForecast({ q, lat, lon }) {
+      try {
+        const params = {
+          appid: apiKey,
+          lang: "ja",
+          units: "metric",
+        };
+
+        if (lat && lon) {
+          // 現在地の天気ボタン押下時
+          params.lat = lat;
+          params.lon = lon;
+        } else if (q) {
+          // プルダウン選択時
+          params.q = q;
+        } else {
+          alert("都市名または緯度経度を指定してください");
+          return;
+        }
+
+        const weeklyWeather = await axios.get(
+          "https://api.openweathermap.org/data/2.5/forecast",
+          {
+            params,
+          }
+        );
+
+        // 取得データの整形
+        // 必要な時間のデータを抽出
+        const filtered = weeklyWeather.data.list.filter((item) => {
+          const hour = new Date(item.dt * 1000).getHours();
+          return [6, 9, 12, 15, 18, 21, 0].includes(hour);
+        });
+
+        // 日付でグループ化
+        const grouped = {};
+        filtered.forEach((item) => {
+          const date = item.dt_txt.split(" ")[0];
+          if (!grouped[date]) grouped[date] = [];
+          grouped[date].push(item);
+        });
+        this.forecast = grouped;
+      } catch (err) {
+        console.error("天気取得エラー", err);
+        alert("週間天気を取得できませんでした");
       }
     },
   },
