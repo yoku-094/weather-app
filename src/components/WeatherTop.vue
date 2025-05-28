@@ -54,11 +54,12 @@
         </thead>
         <tbody>
           <tr v-for="(day, index) in forecastData" :key="index">
-            <td>{{ day.date }}</td>
-            <td v-for="hour in hours" :key="hour">
-              <div class="weather-icon">{{ day[hour].icon }}</div>
-              <div>{{ day[hour].tempMax }} / {{ day[hour].tempMin }} °C</div>
-              <div>{{ day[hour].pressure }} hPa</div>
+            <td>{{ day[0].date }}</td>
+            <!-- dayは配列なので日付は最初の要素から -->
+            <td v-for="(hourData, hourIndex) in day" :key="hourIndex">
+              <!-- <div class="weather-icon">{{ hourData.icon }}</div> -->
+              <div>{{ hourData.temp }} °C</div>
+              <div>{{ hourData.pressure }} hPa</div>
             </td>
           </tr>
         </tbody>
@@ -232,21 +233,43 @@ export default {
           }
         );
 
-        // 取得データの整形
-        // 必要な時間のデータを抽出
-        const filtered = weeklyWeather.data.list.filter((item) => {
-          const hour = new Date(item.dt * 1000).getHours();
-          return [6, 9, 12, 15, 18, 21, 0].includes(hour);
-        });
-
-        // 日付でグループ化
+        this.hours = [0, 6, 9, 12, 15, 18, 21];
         const grouped = {};
-        filtered.forEach((item) => {
-          const date = item.dt_txt.split(" ")[0];
-          if (!grouped[date]) grouped[date] = [];
-          grouped[date].push(item);
+        // 必要な時間のデータを抽出
+        weeklyWeather.data.list.forEach((item) => {
+          const jst = new Date(
+            new Date(item.dt * 1000).toLocaleString("ja-JP", {
+              timeZone: "Asia/Tokyo",
+            })
+          );
+          const hour = jst.getHours();
+          const date = jst.toISOString().split("T")[0];
+
+          // 対象の時間のみ抽出
+          if (this.hours.includes(hour)) {
+            if (!grouped[date]) grouped[date] = [];
+
+            grouped[date].push({
+              date,
+              hour,
+              temp: item.main.temp,
+              pressure: item.main.pressure,
+              weather: item.weather[0].main,
+              description: item.weather[0].description,
+              // icon: item.weather[0].icon,
+              rain: item.rain?.["3h"] || 0,
+              wind: item.wind,
+            });
+          }
         });
-        this.forecast = grouped;
+        // 日付でソートして配列に変換
+        const forecastArray = Object.keys(grouped)
+          .sort()
+          .map((date) => {
+            // 各日の配列もhourでソートして返す
+            return grouped[date].sort((a, b) => a.hour - b.hour);
+          });
+        this.forecastData = forecastArray;
       } catch (err) {
         console.error("天気取得エラー", err);
         alert("週間天気を取得できませんでした");
