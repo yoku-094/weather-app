@@ -13,57 +13,59 @@
         <button @click="getCurrentLocationWeather">現在地の天気</button>
       </div>
     </div>
-    <div class="weather-info-now">
-      <div class="weather-info-1">
-        <div class="prefectures">{{ displayName }}</div>
-        <div class="cities">{{ description }}</div>
+    <div class="weather-info-area">
+      <div class="weather-info-now">
+        <div class="weather-info-1">
+          <div class="prefectures">{{ displayName }}</div>
+          <div class="cities">{{ description }}</div>
+        </div>
+        <div class="weather-icon">
+          <img :src="getWeatherIcon(condition)" alt="Weather Icon" />
+        </div>
+        <div class="weather-info-2">
+          <p>
+            <span class="weather-temp">{{ Math.round(temp) }} ℃</span>
+          </p>
+          <p>
+            <span class="weather-pressure"
+              >{{ atmospheric_pressure }} &ensp;hPa</span
+            >
+          </p>
+        </div>
       </div>
-      <div class="weather-icon">
-        <p v-if="condition == 'Clear'">
-          <img alt="logo_sunny" src="../assets/logo_Sunny.png" />
-        </p>
-        <p v-else-if="condition == 'Clouds'">
-          <img alt="logo_cloud" src="../assets/logo_Cloud.png" />
-        </p>
-        <p v-else-if="condition == 'Rain'">
-          <img alt="logo_rain" src="../assets/logo_Rain.png" />
-        </p>
-        <p v-else>
-          <img alt="logo_other" src="../assets/logo_Other.png" />
-        </p>
+      <div class="weekly-weather-info">
+        <table class="table table-bordered text-center">
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th v-for="hour in hours" :key="hour">{{ hour }}時</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(day, index) in forecastData" :key="index">
+              <td v-html="formatDate(day[0].date)"></td>
+              <!-- dayは配列なので日付は最初の要素から -->
+              <td v-for="(hourData, hourIndex) in day" :key="hourIndex">
+                <div class="weekly-weather-icon">
+                  <img
+                    :src="getWeatherIcon(hourData.condition)"
+                    alt="Weather Icon"
+                  />
+                </div>
+                <div class="weekly-weather-description">
+                  {{ hourData.description }}
+                </div>
+                <div class="weekly-weather-temp">
+                  {{ Math.round(hourData.temp) }} °C
+                </div>
+                <div class="weekly-weather-pressure">
+                  {{ hourData.pressure }} hPa
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="weather-info-2">
-        <p>
-          <span class="max-temp">{{ Math.round(max_temp) }} ℃</span>
-        </p>
-        <p>
-          <span class="min-temp">{{ Math.round(min_temp) }} ℃</span>
-        </p>
-        <p>
-          <span class="pressure">{{ atmospheric_pressure }} &ensp;hPa</span>
-        </p>
-      </div>
-    </div>
-    <div class="weather-info-week">
-      <table class="table table-bordered text-center">
-        <thead>
-          <tr>
-            <th>日付</th>
-            <th v-for="hour in hours" :key="hour">{{ hour }}時</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(day, index) in forecastData" :key="index">
-            <td>{{ day[0].date }}</td>
-            <!-- dayは配列なので日付は最初の要素から -->
-            <td v-for="(hourData, hourIndex) in day" :key="hourIndex">
-              <!-- <div class="weather-icon">{{ hourData.icon }}</div> -->
-              <div>{{ hourData.temp }} °C</div>
-              <div>{{ hourData.pressure }} hPa</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </template>
@@ -84,8 +86,7 @@ export default {
       displayName: null,
       description: null,
       condition: null,
-      max_temp: null,
-      min_temp: null,
+      temp: null,
       atmospheric_pressure: null,
       hours: [],
       forecastData: [],
@@ -107,8 +108,7 @@ export default {
             (this.city = res.data.name),
             (this.description = res.data.weather[0].description),
             (this.condition = res.data.weather[0].main),
-            (this.max_temp = res.data.main.temp_max),
-            (this.min_temp = res.data.main.temp_min),
+            (this.temp = res.data.main.temp),
             (this.atmospheric_pressure = res.data.main.pressure),
             // 未来の天気を取得
             this.getForecast({
@@ -170,8 +170,7 @@ export default {
         this.city = data.name; // 参考に保持
         this.description = data.weather[0].description;
         this.condition = data.weather[0].main;
-        this.max_temp = data.main.temp_max;
-        this.min_temp = data.main.temp_min;
+        this.temp = data.main.temp;
         this.atmospheric_pressure = data.main.pressure;
         // 未来の天気予報を取得
         await this.getForecast({
@@ -254,9 +253,8 @@ export default {
               hour,
               temp: item.main.temp,
               pressure: item.main.pressure,
-              weather: item.weather[0].main,
+              condition: item.weather[0].main,
               description: item.weather[0].description,
-              // icon: item.weather[0].icon,
               rain: item.rain?.["3h"] || 0,
               wind: item.wind,
             });
@@ -266,14 +264,33 @@ export default {
         const forecastArray = Object.keys(grouped)
           .sort()
           .map((date) => {
-            // 各日の配列もhourでソートして返す
+            // 各日0-21時でソート
             return grouped[date].sort((a, b) => a.hour - b.hour);
-          });
+          })
+          // 0-21時までのデータが揃っているもののみ
+          .filter((dayArray) => dayArray.length === this.hours.length);
         this.forecastData = forecastArray;
       } catch (err) {
         console.error("天気取得エラー", err);
         alert("週間天気を取得できませんでした");
       }
+    },
+    getWeatherIcon(condition) {
+      const weatherIconMap = {
+        Clear: require("@/assets/logo_Sunny.png"),
+        Clouds: require("@/assets/logo_Cloud.png"),
+        Rain: require("@/assets/logo_Rain.png"),
+        Snow: require("@/assets/logo_Snow.png"),
+      };
+      return weatherIconMap[condition] || require("@/assets/logo_Other.png");
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const weekDays = ["日", "月", "火", "水", "木", "金", "土"];
+      const week = weekDays[date.getDay()];
+      return `${month}/${day}<br>（${week}）`;
     },
   },
   mounted() {
@@ -340,16 +357,48 @@ a {
   font-weight: bold;
 }
 
-.weather-info-2 {
+.select-city,
+.weather-info-area {
+  padding: 10px 0px;
+}
+.weather-info-area {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 20px 0px;
+}
+
+.weather-info-2,
+.weekly-weather-info {
   font-weight: bold;
 }
-.max-temp {
+.weather-temp {
   color: #ea85ac;
 }
-.min-temp {
-  color: #85beea;
+.weather-pressure {
+  color: #858585;
 }
-.pressure {
+
+.weather-info-1,
+.weekly-weather-info {
+  color: #5b5b5b;
+}
+
+.weekly-weather-info {
+  display: flex;
+}
+.weekly-weather-icon img {
+  width: 30px;
+}
+.weekly-weather-description {
+  font-size: 12px;
+  color: #858585;
+}
+.weekly-weather-temp {
+  font-size: 15px;
+  color: #ea85ac;
+}
+.weekly-weather-pressure {
+  font-size: 15px;
   color: #858585;
 }
 </style>
