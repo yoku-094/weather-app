@@ -44,7 +44,6 @@
           <tbody>
             <tr v-for="(day, index) in forecastData" :key="index">
               <td v-html="formatDate(day[0].date)"></td>
-              <!-- dayは配列なので日付は最初の要素から -->
               <td v-for="(hourData, hourIndex) in day" :key="hourIndex">
                 <div class="weekly-weather-icon">
                   <img
@@ -90,6 +89,8 @@ export default {
       atmospheric_pressure: null,
       hours: [],
       forecastData: [],
+      suppressWatch: false,
+      isCurrentLocation: false,
     };
   },
   methods: {
@@ -103,19 +104,21 @@ export default {
             },
           }
         )
-        .then(
-          (res) => (
-            (this.city = res.data.name),
-            (this.description = res.data.weather[0].description),
-            (this.condition = res.data.weather[0].main),
-            (this.temp = res.data.main.temp),
-            (this.atmospheric_pressure = res.data.main.pressure),
-            // 未来の天気を取得
-            this.getForecast({
-              q: this.selectCity,
-            })
-          )
-        )
+        .then((res) => {
+          this.city = res.data.name;
+          this.description = res.data.weather[0].description;
+          this.condition = res.data.weather[0].main;
+          this.temp = res.data.main.temp;
+          this.atmospheric_pressure = res.data.main.pressure;
+          // 未来の天気を取得
+          this.getForecast({
+            q: this.selectCity,
+          });
+
+          this.isCurrentLocation = false;
+          // セッション管理用
+          sessionStorage.isCurrentLocation = this.isCurrentLocation;
+        })
         .catch((error) => {
           console.log(error);
           alert("現在地の天気を取得できませんでした");
@@ -199,6 +202,10 @@ export default {
           this.selectCity = match.name;
           // プルダウン選択による都道府県選択の抑制用
           this.suppressWatch = true;
+
+          this.isCurrentLocation = true;
+          // セッション管理用
+          sessionStorage.isCurrentLocation = this.isCurrentLocation;
         }
       } catch (err) {
         console.error("天気取得エラー", err);
@@ -294,12 +301,22 @@ export default {
     },
   },
   mounted() {
-    if (sessionStorage.selectCity) {
+    if (sessionStorage.isCurrentLocation === "true") {
+      // 現在地ボタン
+      this.getCurrentLocationWeather();
+    } else if (sessionStorage.selectCity) {
+      // プルダウン選択
       this.selectCity = sessionStorage.selectCity;
+      this.getWeather();
+      this.getDisplayName();
+      this.isCurrentLocation = false;
+    } else {
+      // どちらもなければ初期表示
+      this.getWeather();
+      this.getDisplayName();
+      this.isCurrentLocation = false;
     }
-
-    this.getWeather();
-    this.getDisplayName();
+    sessionStorage.isCurrentLocation = this.isCurrentLocation;
   },
   watch: {
     selectCity(newSelectCity) {
