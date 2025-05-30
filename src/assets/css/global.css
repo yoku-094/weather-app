@@ -1,0 +1,29 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #5b5b5b;
+  text-align: center;
+  min-height: 100vh;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* bootstrapのボタン色変更 */
+.btn-primary {
+  background-color: #66c17f;
+  border-color: #66c17f;
+  font-weight: bold;
+}
+.btn-primary:hover {
+  background-color: #85d49b;
+  border-color: #85d49b;
+  font-weight: bold;
+}

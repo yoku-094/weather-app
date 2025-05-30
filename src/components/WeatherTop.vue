@@ -5,12 +5,14 @@
   <div class="main" v-else>
     <div class="select-city">
       <div class="select-city-items">
-        <select v-model="selectCity">
+        <select v-model="selectCity" class="form-select">
           <option v-for="city in cities" :key="city.name" :value="city.name">
             {{ city.text }}
           </option>
         </select>
-        <button @click="getCurrentLocationWeather">現在地の天気</button>
+        <button @click="getCurrentLocationWeather" class="btn btn-primary">
+          現在地の天気
+        </button>
       </div>
     </div>
     <div class="weather-info-area">
@@ -34,14 +36,16 @@
         </div>
       </div>
       <div class="weekly-weather-info">
-        <table class="table table-bordered text-center">
+        <table class="table text-center">
           <thead>
             <tr>
-              <th>日付</th>
-              <th v-for="hour in hours" :key="hour">{{ hour }}時</th>
+              <th scope="col">日付</th>
+              <th v-for="hour in hours" :key="hour" scope="col">
+                {{ hour }}時
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="table-group-divider">
             <tr v-for="(day, index) in forecastData" :key="index">
               <td v-html="formatDate(day[0].date)"></td>
               <td v-for="(hourData, hourIndex) in day" :key="hourIndex">
@@ -336,7 +340,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h3 {
   margin: 40px 0 0;
@@ -349,19 +352,27 @@ li {
   display: inline-block;
   margin: 0 10px;
 }
-a {
-  color: #42b983;
+table td {
+  align-content: center;
+  padding: 10px 20px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .select-city {
   display: flex;
   justify-content: center;
+  padding: 20px 0px;
 }
 .select-city-items {
   display: flex;
   flex-direction: column;
   text-align-last: center;
-  width: 100px;
+  width: 140px;
   row-gap: 14px;
 }
 .prefectures {
@@ -374,30 +385,29 @@ a {
   font-weight: bold;
 }
 
-.select-city,
-.weather-info-area {
-  padding: 10px 0px;
-}
 .weather-info-area {
   display: flex;
+  flex: 1;
   justify-content: space-evenly;
-  margin: 20px 0px;
+  padding: 20px;
+  column-gap: 20px;
 }
 
 .weather-info-2,
 .weekly-weather-info {
   font-weight: bold;
 }
+
+.weather-info-now {
+  padding: 0 20px;
+  height: fit-content;
+  align-self: center;
+}
 .weather-temp {
   color: #ea85ac;
 }
 .weather-pressure {
   color: #858585;
-}
-
-.weather-info-1,
-.weekly-weather-info {
-  color: #5b5b5b;
 }
 
 .weekly-weather-info {
@@ -417,5 +427,42 @@ a {
 .weekly-weather-pressure {
   font-size: 15px;
   color: #858585;
+}
+
+@media (max-width: 600px) {
+  table th,
+  table td {
+    padding: 6px;
+    font-size: 12px;
+  }
+  .weather-info-area {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .weather-info-now,
+  .weekly-weather-info {
+    padding: 10px 0;
+    width: 100%;
+  }
+
+  .weekly-weather-info {
+    justify-content: center;
+    overflow-x: auto;
+  }
+
+  .weather-icon img {
+    width: 200px;
+  }
+
+  .weekly-weather-description {
+    height: 36px;
+    align-content: center;
+  }
+  .weekly-weather-temp,
+  .weekly-weather-pressure {
+    font-size: 12px;
+  }
 }
 </style>
